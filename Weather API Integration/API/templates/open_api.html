@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}API Testing{% endblock title %}
+{% block content %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+<hr>
+
+<p style="color:red;">{{res}}</p>
+{% comment %} <p style="color:green;">{{all_apis}}</p> {% endcomment %}
+
+{% if status == 200 %}
+
+
+<section class="home-block">
+    <div class="container">
+      <div class="card wh-card-block">
+        <div class="card-header">
+          <h2 class="text-left">
+            Search
+          </h2>
+        </div>
+        <div class="card-body"> 
+
+            <div class="wh-tableinfo-block">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered wh-table-block" id="example">
+                        <thead>
+                            <tr>
+                                <th>S.NO.</th>    
+                                <th>API</th>
+                                <th>Description</th>
+                                <th>Link</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in page_obj.object_list %}
+                                <tr>
+                                    <td>{{data.S_NO}}</td>
+                                    <td>{{data.API}}</td>
+                                    <td>{{data.Description}}</td>
+                                    <td><a href="{{data.Link}}" target="_blank">{{data.Link}}</a></td>
+                                </tr>
+                                
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4">No data available.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div> 
+    </div>
+</section>
+
+
+        <script>
+            $(document).ready(function(){
+                new DataTable('#example');
+            });
+        </script>
+
+
+        
+{% endif %}
+{% comment %} <center>
+    
+    {%if page_obj.has_previous %} {# whether the previous page exists #}
+    <form action="/OpenApiLogin2/{{page_obj.previous_page_number}}" method="POST">
+        {% csrf_token %}
+       <button type="submit">Previous<</button> {# link to the prev page #}
+    {% endif %}
+    </form>
+    <span>{{page_obj.number}}</span> {# the current page number #}
+   
+    {%if page_obj.has_next %} {# whether the next page exists #}
+    <form action="/OpenApiLogin2/{{page_obj.next_page_number}}" method="POST">
+        {% csrf_token %}
+        <button type="submit">Next></button> {# link to the next page #}
+    {% endif %}
+    </form>
+</center> {% endcomment %}
+{% comment %} <script>
+    // Function to hide the "Send" button
+    function hideSendButton() {
+        var sendButton = document.getElementById("sendButton");
+        if (sendButton) {
+            sendButton.style.display = "none";
+        }
+    }
+
+    // Assuming you have variables named 'responseCode1' and 'responseCode2'
+
+    if ({{status}} === 200) {
+        // Call the function to hide the button if the response code is 200.
+        hideSendButton();
+    }
+</script> {% endcomment %}
+
+{% endblock content %}

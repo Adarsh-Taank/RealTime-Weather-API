@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% block title %}
+  API Testing
+{% endblock %}
+{% block content %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+  <section class="home-block">
+    <div class="container">
+      <div class="card wh-card-block">
+        <div class="card-header">
+          <h2 class="text-left ">Real-Time API Page</h2>
+        </div>
+        <div class="card-body">
+          <h4>Welcome to our real-time weather API service! Access the latest weather updates for your location and stay informed about current conditions</h4>
+          {% comment %} <button type="submit" download="filename.txt">Download File</button> {% endcomment %}
+          
+          <section class="w-100 py-5 px-4" style="background-color: #4B515D; border-radius: .5rem .5rem 0 0;">
+            <div class="form-group text-right"> 
+              <button onclick="showModal()" class="btn wh-submit wh-formsubmit">Download</button>
+              </div>
+            <div class="row d-flex justify-content-center py-5">
+              <div class="col-md-8 col-lg-6 col-xl-5">
+                <div class="card" style="color: #4B515D; border-radius: 35px;">
+                  <div class="card-body p-4">
+                    <di class="d-flex">
+                      <h6 class="flex-grow-1">{{ city_name }}</h6>
+                      <h6>{{ current_time }}</h6>
+                    </div>
+                    
+
+                    <div class="d-flex flex-column text-center mt-5 mb-4">
+                      <h6 class="display-4 mb-0 font-weight-bold" style="color: #1C2331;">{{ temp }}°C</h6>
+                      <span class="small" style="color: #868B94">{{ condition }}</span>
+                    </div>
+
+                    <div class="d-flex align-items-center">
+                      <div class="flex-grow-1" style="font-size: 1rem;">
+                        <div>
+                          <i class="fas fa-wind fa-fw" style="color: #868B94;"></i> <span class="ms-1">Wind Speed : {{ wind_kph }} km/h</span>
+                        </div>
+                        <div>
+                          <i class="fas fa-tint fa-fw" style="color: #868B94;"></i> <span class="ms-1">Humidity : {{ humidity }}</span>
+                        </div>
+                        <div>
+                          <i class="fas fa-sun fa-fw" style="color: #868B94;"></i> <span class="ms-1">Wind Direction : {{ wind_dir }}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-weather/ilu1.webp" width="100px" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+
+  
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <p id="modalMessage"><strong>Please Verify Your Mobile Number to Download File.</strong></p> 
+      <form id="mobileForm"  method="POST">
+        {% csrf_token %}
+        <label for="mobileNumber">Mobile Number:</label>
+        <input type="text" id="mobileNumber" placeholder="Enter your mobile number">
+        <button type="button" onclick="verify_otp()">Send OTP</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="otpModal" class="modal">
+    <div class="modal-content">
+      <p id="modalOTP"><strong>Please Verify Your OTP</strong></p> 
+      <form id="mobileForm"  method="POST">
+        {% csrf_token %}
+        <input type="text" id="otp" placeholder="Enter OTP">
+        <button type="button" onclick="send_otp()">Verify OTP</button>
+      </form>
+    </div>
+  </div> 
+
+  <div id="downloadModal" class="modal">
+    <div class="modal-content">
+      <form id="mobileForm"  action="/download_file_by_city" method="post">
+        {% csrf_token %}
+        <button type="submit">Download File</button>
+      </form>
+    </div>
+  </div> 
+  
+
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+  <script>
+
+
+    var city_Name = "{{city_name}}";
+    var time = '{{current_time}}';
+    var city_Id = '{{city_Id}}';
+    var file_path_global = null;
+    // Display modal
+
+    function showModal() {
+
+      document.getElementById('modalMessage').innerHTML = '<strong>Please Verify Your Mobile Number to Download Previous Weather Data of this City.</strong>';
+      var modal = document.getElementById('myModal')
+      modal.style.display = 'block'
+      
+    }
+    
+
+    function showotpbox() {
+
+      document.getElementById('modalOTP').innerHTML = '<strong>Please Verify Your OTP</strong>';
+      var modal = document.getElementById('otpModal')
+      modal.style.display = 'block'
+      
+    }
+
+    function showDownload() {
+
+      var modal = document.getElementById('downloadModal')
+      modal.style.display = 'block'
+      
+    }
+    
+    // Close modal
+    function closeModal() {
+      var modal = document.getElementById('myModal')
+      modal.style.display = 'none'
+    }
+
+    function closeotpModal() {
+      var modal = document.getElementById('otpModal')
+      modal.style.display = 'none'
+    }
+    
+    // AJAX request on button click
+    function verify_otp() {
+      var mobileNumber = document.getElementById('mobileNumber').value;
+      var csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+  
+      // Make sure the mobile number is not empty before making the AJAX request
+      if (mobileNumber.trim() !== '') {
+        // Perform AJAX request here
+        $.ajax({
+          url: '/verify_num',
+          type: 'POST',
+            headers: {
+              'X-CSRFToken': csrfToken
+          },
+          data: {
+            'mobile': mobileNumber
+            // Add more data parameters as needed
+          },
+          success: function(data) {
+            // Handle success, e.g., process the downloaded file
+            console.log('OTP Sent successfully:', data);
+  
+            // Close the modal after successful download (you can modify this part accordingly)
+            closeModal();
+            showotpbox();
+          },
+          error: function(error) {
+            // Handle error
+            console.error('Error Sending OTP:', error);
+          }
+        });
+      } else {
+        alert('Please enter a valid mobile number.');
+      }
+    }
+
+
+
+    function send_otp() {
+      
+      var otp = document.getElementById('otp').value;
+      var csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+  
+      // Make sure the mobile number is not empty before making the AJAX request
+      if (otp !== '') {
+        // Perform AJAX request here
+        $.ajax({
+          url: '/verify_num',
+          type: 'POST',
+            headers: {
+              'X-CSRFToken': csrfToken
+          },
+          data: {
+            'ent_otp': otp,
+            'city': city_Name,
+            'time': time,
+            'city_Id': city_Id
+            // Add more data parameters as needed
+          },
+          success: function(data) {
+            // Check if the flag is true
+            if (data.check_otp) {
+                console.log('OTP verified successfully.');
+                file_path = data.path;
+                file_path_global=file_path;
+                console.log(file_path_global);
+                // Close the modal after successful verification
+                closeotpModal();
+                showDownload();
+            } else {
+                // Handle case where the flag is not true
+                alert('Invalid OTP. Please try again.');
+
+
+            }
+        },
+        error: function(error) {
+            // Handle error
+            console.error('Error verifying OTP:', error);
+        }
+    });
+} else {
+    alert('Please enter a valid OTP number.');
+}
+}
+  
+  </script>
+
+{% endblock %}

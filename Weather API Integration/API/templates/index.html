@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}
+  API Testing
+{% endblock %}
+{% block content %}
+
+  <section class="home-block" >
+    <div class="container">
+      <div class="card wh-card-block">
+        <div class="card-header">
+          <h2 class="text-left">Multiple API's Information</h2>
+        </div>
+        <div class="card-body" style="background: url();">
+          <h4 class="text-left"><a href="{% url 'RealTimeAPILogin' %}" class="text-info">Real Time API</a></h4>
+          <h4 class="text-left"><a href="{% url 'api' %}"  class="text-info">Open API</a></h4>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <style>
+    .card-body {
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+      background-attachment: fixed;
+  }
+</style>
+{% endblock %}
